@@ -51,7 +51,6 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             mkdir -p ${{ secrets.FOLDER_NAME }}
             cd ${{ secrets.FOLDER_NAME }}
@@ -78,7 +77,6 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ${{ secrets.FOLDER_NAME }}
             sudo docker compose down
