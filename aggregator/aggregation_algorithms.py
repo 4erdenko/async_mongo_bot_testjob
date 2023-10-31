@@ -1,15 +1,20 @@
 from datetime import datetime
+from typing import Any, Dict, Union
+
+from database.db import MongoBase
 
 
 class SalaryAggregator:
-    def __init__(self, parameters: dict):
+    def __init__(self, parameters: Dict[str, Union[str, datetime]]):
         self.pre_dt_from = parameters.get('dt_from')
         self.pre_dt_upto = parameters.get('dt_upto')
         self.group_type = parameters.get('group_type')
         self.dt_from = datetime.fromisoformat(self.pre_dt_from)
         self.dt_upto = datetime.fromisoformat(self.pre_dt_upto)
 
-    async def aggregate(self, db_cursor):
+    async def aggregate(
+        self, db_accessor: MongoBase
+    ) -> dict[str, list[Any] | list[str]]:
         group_id = {}
         if self.group_type == 'day':
             group_id = {
@@ -32,7 +37,7 @@ class SalaryAggregator:
             {'$sort': {'_id': 1}},
         ]
 
-        result = await db_cursor.aggregate(pipeline)
+        result = await db_accessor.aggregate(pipeline)
         dataset = []
         labels = []
 
@@ -45,12 +50,12 @@ class SalaryAggregator:
 
             if self.group_type == 'day':
                 day = record['_id']['day']
-                labels.append(f"{year}-{month:02d}-{day:02d}T00:00:00")
+                labels.append(f'{year}-{month:02d}-{day:02d}T00:00:00')
             elif self.group_type == 'month':
-                labels.append(f"{year}-{month:02d}-01T00:00:00")
+                labels.append(f'{year}-{month:02d}-01T00:00:00')
             elif self.group_type == 'hour':
                 day = record['_id']['day']
                 hour = record['_id']['hour']
-                labels.append(f"{year}-{month:02d}-{day:02d}T{hour:02d}:00:00")
+                labels.append(f'{year}-{month:02d}-{day:02d}T{hour:02d}:00:00')
 
         return {'dataset': dataset, 'labels': labels}
