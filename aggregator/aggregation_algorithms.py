@@ -58,4 +58,4 @@ class SalaryAggregator:
                 hour = record['_id']['hour']
                 labels.append(f'{year}-{month:02d}-{day:02d}T{hour:02d}:00:00')
 
-        return {'dataset': dataset, 'labels': labels}
+        return {"dataset": dataset, "labels": labels}
