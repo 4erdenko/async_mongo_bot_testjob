@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 from typing import Dict, Union
 
-from aggregator.utils import daterange
+from aggregator.utils import fill_missing_dates
 from database.db import MongoBase
 
 
@@ -38,19 +38,28 @@ class SalaryAggregator:
         ]
 
         result = await db_accessor.aggregate(pipeline)
-        dataset = [0] * (int((self.dt_upto - self.dt_from).days) + 1)
-        labels = list(daterange(self.dt_from, self.dt_upto))
+        dataset = []
+        labels = []
 
         for record in result:
             total_value = record['total_value']
+            dataset.append(total_value)
+
             year = record['_id']['year']
             month = record['_id']['month']
-            day = record['_id'].get('day', 1)
-            hour = record['_id'].get('hour', 0)
 
-            date_index = (datetime(year, month, day, hour) - self.dt_from).days
-            dataset[date_index] = total_value
-
+            if self.group_type == 'day':
+                day = record['_id']['day']
+                labels.append(f'{year}-{month:02d}-{day:02d}T00:00:00')
+            elif self.group_type == 'month':
+                labels.append(f'{year}-{month:02d}-01T00:00:00')
+            elif self.group_type == 'hour':
+                day = record['_id']['day']
+                hour = record['_id']['hour']
+                labels.append(f'{year}-{month:02d}-{day:02d}T{hour:02d}:00:00')
+        labels, dataset = fill_missing_dates(
+            labels, dataset, self.dt_from, self.dt_upto, self.group_type
+        )
         labels = [dt.strftime('%Y-%m-%dT%H:%M:%S') for dt in labels]
         response = {'dataset': dataset, 'labels': labels}
         json_response = json.dumps(response)
