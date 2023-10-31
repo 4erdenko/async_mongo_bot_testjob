@@ -1,5 +1,6 @@
+import json
 from datetime import datetime
-from typing import Any, Dict, Union
+from typing import Dict, Union
 
 from database.db import MongoBase
 
@@ -14,7 +15,7 @@ class SalaryAggregator:
 
     async def aggregate(
         self, db_accessor: MongoBase
-    ) -> dict[str, list[Any] | list[str]]:
+    ) -> json:
         group_id = {}
         if self.group_type == 'day':
             group_id = {
@@ -57,5 +58,6 @@ class SalaryAggregator:
                 day = record['_id']['day']
                 hour = record['_id']['hour']
                 labels.append(f'{year}-{month:02d}-{day:02d}T{hour:02d}:00:00')
-
-        return {"dataset": dataset, "labels": labels}
+        response = {'dataset': dataset, 'labels': labels}
+        json_response = json.dumps(response)
+        return json_response
