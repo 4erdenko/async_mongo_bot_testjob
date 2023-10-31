@@ -1,7 +1,6 @@
 LEXICON_RU: dict[str, str] = {
     '/start': 'Привет, это бот для тестового задания по вот этой вот '
-    '<a '
-    'href="https://docs.google.com/document/d/1XRR5m0PMocZf'
+    '<a href="https://docs.google.com/document/d/1XRR5m0PMocZf'
     '-AwM1BFNYUJ2OdBEkm9YYH8uQjYlvQc/edit">ссылочке</a>.\n'
     'Автор бота: https://t.me/Landmesser_A',
     'other_answer': 'Невалидный запрос\\. Пример запроса:\n'
